@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Badmöbel Konfigurator</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@1,9..144,500&family=JetBrains+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<aside id="panel">
+  <div class="brand">
+    <span class="brand-mark">Vanova</span>
+    <span class="brand-sub">Konfigurator</span>
+  </div>
+
+  <section class="group">
+    <h2>Typ</h2>
+    <div class="segmented" id="typeSwitch">
+      <button class="seg-btn active" data-type="vanity">Waschtisch</button>
+      <button class="seg-btn" data-type="sideboard">Sideboard</button>
+    </div>
+  </section>
+
+  <section class="group" id="modulesGroup">
+    <h2>Module <span class="hint">Raster 600 / 800 mm</span></h2>
+    <div id="moduleList"></div>
+    <div class="add-row">
+      <button class="btn-add" data-add="600">+ 600 mm</button>
+      <button class="btn-add" data-add="800">+ 800 mm</button>
+    </div>
+    <div class="cap-hint" id="capHint"></div>
+  </section>
+
+  <section class="group" id="mountGroup">
+    <h2>Montagehöhe <span class="hint">ab Boden</span></h2>
+    <div class="slider-row">
+      <input type="range" id="mountHeight" min="550" max="750" step="10" value="650">
+      <span class="slider-val" id="mountHeightVal">650 mm</span>
+    </div>
+  </section>
+
+  <section class="group" id="frameGroup">
+    <h2>Gestellhöhe</h2>
+    <div class="row-select" id="frameHeightSwitch">
+      <button class="type-btn active" data-frame="140">140 mm</button>
+      <button class="type-btn" data-frame="240">240 mm</button>
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Front <span class="hint" id="frontLabel"></span></h2>
+    <div class="swatches" id="frontSwatches"></div>
+  </section>
+
+  <section class="group" id="topGroup">
+    <h2>Arbeitsplatte <span class="hint" id="topLabel"></span></h2>
+    <div class="swatches" id="topSwatches"></div>
+  </section>
+
+  <section class="group">
+    <h2>Griffleiste <span class="hint" id="handleLabel"></span></h2>
+    <div class="swatches" id="handleSwatches"></div>
+  </section>
+
+  <section class="group" id="faucetGroup">
+    <h2>Armatur</h2>
+    <div class="row-select" id="faucetTypeSwitch"></div>
+    <div class="swatches" id="faucetFinishSwatches"></div>
+  </section>
+
+  <section class="group" id="mirrorGroup">
+    <label class="check-row">
+      <input type="checkbox" id="mirrorToggle" checked>
+      Spiegel &amp; Wand anzeigen
+    </label>
+  </section>
+
+  <details class="group model-admin" id="modelAdmin">
+    <summary>Eigene 3D-Modelle <span class="hint">Backend</span></summary>
+    <p class="model-admin-hint">Eigene GLB-/glTF-Dateien (eingebettet, unkomprimiert) für Becken, Armatur und Griffleiste hinterlegen – ersetzen dann dauerhaft die einfache Geometrie im Modell und im 3D-Export. Werden lokal in diesem Browser gespeichert.</p>
+    <div id="modelSlots"></div>
+  </details>
+
+  <section class="group dims">
+    <h2>Masse</h2>
+    <dl id="dimsList"></dl>
+  </section>
+
+  <section class="group price-group">
+    <h2>Preis <span class="hint">Richtwert, exkl. MwSt.</span></h2>
+    <label class="check-row" style="margin-bottom:10px;">
+      <input type="checkbox" id="installToggle">
+      Mit Montageservice
+    </label>
+    <dl id="priceList" class="price-list"></dl>
+    <div class="price-total">
+      <span>Gesamtpreis ca.</span>
+      <strong id="priceTotal"></strong>
+    </div>
+    <p class="price-note">Beispielkalkulation zur Veranschaulichung des Konfigurators – für ein verbindliches Angebot bitte die echte Preisliste hinterlegen.</p>
+  </section>
+
+  <div class="panel-footer">
+    <button id="exportModel" class="btn-primary">3D-Modell herunterladen</button>
+    <div class="export-status" id="exportStatus"></div>
+    <button id="resetView">Ansicht zurücksetzen</button>
+  </div>
+</aside>
+
+<main id="viewport">
+  <canvas id="scene"></canvas>
+  <div class="hud-title">Modulares Badmöbel-System</div>
+  <div class="hud-hint">Ziehen zum Drehen · Scrollen zum Zoomen</div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

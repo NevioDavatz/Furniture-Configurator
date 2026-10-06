@@ -1,0 +1,11 @@
+Model Information:
+* title:	Bathroom Sink
+* source:	https://sketchfab.com/3d-models/bathroom-sink-96d6e3561a0e40779ff4a7086f9282a8
+* author:	rickmaolly (https://sketchfab.com/rickmaolly)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Bathroom Sink" (https://sketchfab.com/3d-models/bathroom-sink-96d6e3561a0e40779ff4a7086f9282a8) by rickmaolly (https://sketchfab.com/rickmaolly) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

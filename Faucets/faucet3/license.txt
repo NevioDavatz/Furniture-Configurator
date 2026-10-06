@@ -1,0 +1,11 @@
+Model Information:
+* title:	Faucet modern
+* source:	https://sketchfab.com/3d-models/faucet-modern-45ab60ac857c4f56a53afe8992ed62d1
+* author:	eltayerkebulan (https://sketchfab.com/eltayerkebulan)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Faucet modern" (https://sketchfab.com/3d-models/faucet-modern-45ab60ac857c4f56a53afe8992ed62d1) by eltayerkebulan (https://sketchfab.com/eltayerkebulan) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

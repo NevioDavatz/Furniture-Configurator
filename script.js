@@ -12,31 +12,86 @@
   var MAX_WIDTH = 3200;
 
   /* ---------- option data ---------- */
+  // Bild-Texturen (optional): texture = Farbbild, normalMap / roughnessMap =
+  // Struktur und Glanz, tile = wie viele mm ein Bild in der Realität abdeckt
+  // (steuert die Wiederholung). Ohne texture (oder solange sie lädt) wird das
+  // im Code erzeugte Muster in der Farbe hex verwendet.
+  // Poliigon-Sets: <ordner>/<id>_BaseColor.png, _Normal.png, _Roughness.png
+  function poliigon(folder, id){
+    var p = 'textures/'+folder+'/'+id+'_';
+    return {texture:p+'BaseColor.png', normalMap:p+'Normal.png', roughnessMap:p+'Roughness.png'};
+  }
+  // Sets im *_COL/_NRM/_ROUGHNESS_2K_METALNESS-Schema
+  function metalnessSet(folder, id){
+    var p = 'textures/'+folder+'/'+id+'_';
+    return {texture:p+'COL_2K_METALNESS.png', normalMap:p+'NRM_2K_METALNESS.png', roughnessMap:p+'ROUGHNESS_2K_METALNESS.png'};
+  }
+  function withMaps(opt, maps){
+    for(var k in maps){ opt[k] = maps[k]; }
+    return opt;
+  }
+
   var FRONTS = [
-    {key:'sand', name:'Sand matt', hex:0xcfc6b2, rough:0.9, metal:0.02},
-    {key:'eiche', name:'Eiche Nachbildung', hex:0xb0895c, rough:0.75, metal:0.0},
-    {key:'anthrazit', name:'Anthrazit matt', hex:0x35393b, rough:0.65, metal:0.05}
+    withMaps({key:'eiche', name:'Eiche Furnier', hex:0xb0895c, rough:0.75, metal:0.0, tile:1000},
+      poliigon('eiche', 'Poliigon_WoodVeneerOak_7760')),
+    withMaps({key:'anthrazit', name:'Anthrazit matt', hex:0x3a3b3d, rough:0.8, metal:0.0, tile:600},
+      poliigon('anthrazit-matt', 'Poliigon_PlasticMoldDryBlast_7495')),
+    withMaps({key:'schwarz', name:'Schwarz Struktur', hex:0x202122, rough:0.6, metal:0.2, tile:600},
+      poliigon('schwarz-struktur', 'Poliigon_MetalPaintedMatte_7037'))
   ];
   var TOPS = [
-    {key:'sandbeige', name:'Sandbeige', hex:0xdccdb7, rough:0.32, metal:0.05},
-    {key:'sandbraun', name:'Sandbraun', hex:0xac8b68, rough:0.32, metal:0.05},
-    {key:'anthrazit', name:'Anthrazit', hex:0x393d3e, rough:0.28, metal:0.08}
+    withMaps({key:'beton', name:'Beton', hex:0xb9b8b2, rough:0.8, metal:0.0, tile:1500},
+      poliigon('beton', 'Poliigon_ConcreteWorn_8690')),
+    withMaps({key:'terrazzo-hell', name:'Terrazzo Hell', hex:0xe4e0da, rough:0.3, metal:0.0, tile:800},
+      metalnessSet('terrazzo-hell', 'TerrazzoSlab018')),
+    withMaps({key:'terrazzo-dunkel', name:'Terrazzo Dunkel', hex:0x2c2c2e, rough:0.25, metal:0.0, tile:1200},
+      metalnessSet('terrazzo-dunkel', 'TerrazzoSlab028'))
   ];
+  // Metall nur halb, da die Szene keine Umgebungsspiegelung hat (sonst fast schwarz)
   var HANDLES = [
-    {key:'creme', name:'Creme', hex:0xece6da, rough:0.4, metal:0.35},
-    {key:'anthrazit', name:'Anthrazit', hex:0x2e3132, rough:0.35, metal:0.45}
+    withMaps({key:'edelstahl', name:'Edelstahl', hex:0xacb0b0, rough:0.35, metal:0.5, tile:500},
+      poliigon('edelstahl', 'Poliigon_MetalSteelBrushed_7174')),
+    withMaps({key:'bronze', name:'Bronze', hex:0x8c6a45, rough:0.4, metal:0.5, tile:500},
+      poliigon('bronze', 'Poliigon_MetalBronzeWorn_7248')),
+    withMaps({key:'zink', name:'Zink', hex:0x9da3a6, rough:0.45, metal:0.5, tile:500},
+      poliigon('zink', 'Poliigon_MetalGalvanizedZinc_7184'))
   ];
+  var WALLS = [
+    withMaps({key:'putz', name:'Putz', hex:0xece7da, rough:1, metal:0, tile:1500},
+      poliigon('putz', 'Poliigon_PlasterPainted_7664')),
+    withMaps({key:'backstein', name:'Backstein', hex:0x8a5a46, rough:1, metal:0, tile:2000},
+      poliigon('backstein', 'Poliigon_BrickWallReclaimed_8320')),
+    withMaps({key:'stampflehm', name:'Stampflehm', hex:0xb08e6c, rough:1, metal:0, tile:2000},
+      metalnessSet('stampflehm', 'RammedEarth018'))
+  ];
+  var MIRROR_SMUDGES = 'textures/schlieren/SmudgesLarge001_OVERLAY_VAR1_2K.png';
+  // model: mitgeliefertes glTF im Projektordner, size: Zielgrösse in mm (wird
+  // proportional eingepasst), rotY: optionale Zusatzdrehung in Grad, falls die
+  // automatische Ausrichtung nicht passt. hex/rough/metal gelten für die
+  // einfache Ersatzgeometrie, solange das Modell lädt oder fehlt.
   var SINK_SHAPES = [
-    {key:'round', name:'Rund', hex:0xcdb89a, rough:0.55, metal:0.02},
-    {key:'oval', name:'Oval', hex:0x32353a, rough:0.4, metal:0.05},
-    {key:'rect', name:'Rechteckig', hex:0xf1efe8, rough:0.5, metal:0.02}
+    {key:'round', name:'Kartell Rund', hex:0xcdb89a, rough:0.55, metal:0.02,
+      model:'Sinks/sink2/scene.gltf', size:{w:400,h:150,d:400},
+      credit:{title:'Laufen Kartell 17" Ceramic Bowl Bathroom Sink', author:'usbathstore', url:'https://sketchfab.com/3d-models/laufen-kartell-17-ceramic-bowl-bathroom-sink-2e45dbf71e0d45f9b0a53f27a5b2e48d'}},
+    {key:'oval', name:'Eclipse Oval', hex:0x32353a, rough:0.4, metal:0.05,
+      model:'Sinks/sink1/scene.gltf', size:{w:540,h:150,d:400},
+      credit:{title:'Eclipse sink - Rock Design', author:'rockdesign.eu', url:'https://sketchfab.com/3d-models/eclipse-sink-rock-design-2bb40b5652a8475790f2ad8820ab2d67'}},
+    {key:'rect', name:'Eckig', hex:0xf1efe8, rough:0.5, metal:0.02,
+      model:'Sinks/bathroom_sink/scene.gltf', size:{w:560,h:150,d:400},
+      credit:{title:'Bathroom Sink', author:'rickmaolly', url:'https://sketchfab.com/3d-models/bathroom-sink-96d6e3561a0e40779ff4a7086f9282a8'}}
   ];
   var FAUCET_TYPES = [
-    {key:'round', name:'Rund'},
-    {key:'square', name:'Eckig'},
-    {key:'cylindrical', name:'Zylindrisch'}
+    {key:'round', name:'Klassisch', model:'Faucets/faucet2/scene.gltf', size:{w:200,h:260,d:220},
+      credit:{title:'Bathroom Faucet', author:'Sristaps3D', url:'https://sketchfab.com/3d-models/bathroom-faucet-5458afa4a1a744f4a20152ae582bf5db'}},
+    {key:'square', name:'Eckig', model:'Faucets/faucet1/scene.gltf', size:{w:200,h:260,d:220},
+      credit:{title:'Free 3d Model Square bathroom faucet', author:'Deltahedra', url:'https://sketchfab.com/3d-models/free-3d-model-square-bathroom-faucet-a5c372a83f4f448e829fd2e4487ad75b'}},
+    {key:'cylindrical', name:'Modern', model:'Faucets/faucet3/scene.gltf', size:{w:200,h:260,d:220},
+      credit:{title:'Faucet modern', author:'eltayerkebulan', url:'https://sketchfab.com/3d-models/faucet-modern-45ab60ac857c4f56a53afe8992ed62d1'}}
   ];
+  // 'original': glTF-Armaturen behalten ihre eigenen Materialien/Texturen
+  // (die Werte gelten nur für die einfache Ersatzgeometrie).
   var FAUCET_FINISHES = [
+    {key:'original', name:'Original', hex:0xc4c8c9, rough:0.15, metal:1},
     {key:'chrome', name:'Chrom', hex:0xd2d6d7, rough:0.12, metal:1},
     {key:'blackmatt', name:'Schwarz matt', hex:0x232528, rough:0.5, metal:0.6},
     {key:'steel', name:'Edelstahl', hex:0xacb0b0, rough:0.3, metal:0.9}
@@ -50,12 +105,12 @@
   /* ---------- pricing (example net prices, CHF, excl. VAT) ---------- */
   var PRICE = {
     moduleBase: { vanity:{600:480, 800:620}, sideboard:{600:390, 800:510} },
-    frontSurcharge: {sand:0, eiche:40, anthrazit:60},
-    topPerMeter: {sandbeige:0, sandbraun:150, anthrazit:220},
-    handleSurcharge: {creme:0, anthrazit:15},
+    frontSurcharge: {eiche:40, anthrazit:0, schwarz:60},
+    topPerMeter: {beton:0, 'terrazzo-hell':180, 'terrazzo-dunkel':220},
+    handleSurcharge: {edelstahl:0, bronze:25, zink:15},
     sink: {round:180, oval:220, rect:240},
     faucetType: {round:140, square:160, cylindrical:190},
-    faucetFinish: {chrome:0, blackmatt:30, steel:45},
+    faucetFinish: {original:0, chrome:0, blackmatt:30, steel:45},
     frameSurcharge: {140:0, 240:60},
     install: 190
   };
@@ -121,10 +176,12 @@
     mountHeight: 650,
     frameHeight: 140,
     front: 'eiche',
-    top: 'sandbeige',
-    handle: 'creme',
+    top: 'beton',
+    handle: 'edelstahl',
+    wall: 'putz',
     faucetType: 'cylindrical',
-    faucetFinish: 'chrome',
+    faucetFinish: 'original',
+    variants: {},   // Modell-Slot-ID -> gewählte Ausführung (Index, -1 = Standard)
     mirror: true,
     install: false
   };
@@ -248,7 +305,7 @@
     scene.background = new THREE.Color(dark ? 0x13170f : 0xeef0ee);
     scene.fog = new THREE.Fog(scene.background.getHex(), 2600, 7500);
     floorMat.color.set(dark ? 0x1c211d : 0xe7e3d8);
-    wallMat.color.set(dark ? 0x252b23 : 0xece7da);
+    updateWall();
     hemi.intensity = dark ? 0.5 : 0.75;
     key.intensity = dark ? 0.85 : 1.05;
   }
@@ -399,7 +456,51 @@
     return textureCache[key];
   }
 
-  function texMat(kind, opt, repX, repY){
+  /* ---------- Bild-Texturen aus dem Projektordner ---------- */
+  // url -> THREE.Texture | 'loading' | 'failed'
+  var imageTextures = {};
+  var textureLoader = new THREE.TextureLoader();
+
+  // isColor: Farbbilder sind sRGB, Normal-/Roughness-Maps lineare Daten.
+  // onLoad (optional) statt rebuildScene, z. B. für Wand und Spiegel.
+  function getImageTexture(url, isColor, onLoad){
+    var t = imageTextures[url];
+    if(t && typeof t === 'object') return t;
+    if(!t){
+      imageTextures[url] = 'loading';
+      textureLoader.load(url, function(tex){
+        if(isColor) tex.encoding = THREE.sRGBEncoding;
+        tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+        tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+        imageTextures[url] = tex;
+        (onLoad || rebuildScene)(tex);
+      }, undefined, function(){
+        imageTextures[url] = 'failed';
+        console.warn('Textur nicht gefunden, verwende erzeugtes Muster: '+url);
+      });
+    }
+    return null;
+  }
+
+  // sizeMm (optional): {w,h} der Fläche in mm – nötig, damit eine Bild-Textur
+  // im richtigen Massstab wiederholt wird.
+  function texMat(kind, opt, repX, repY, sizeMm){
+    var img = (opt.texture && sizeMm) ? getImageTexture(opt.texture, true) : null;
+    if(img){
+      var tile = opt.tile || 600;
+      var rep = function(t){
+        if(!t) return null;
+        var c = t.clone(); c.needsUpdate = true;
+        c.repeat.set(sizeMm.w/tile, sizeMm.h/tile);
+        return c;
+      };
+      var nrm = opt.normalMap ? getImageTexture(opt.normalMap) : null;
+      var rgh = opt.roughnessMap ? getImageTexture(opt.roughnessMap) : null;
+      return new THREE.MeshStandardMaterial({
+        map: rep(img), normalMap: rep(nrm), roughnessMap: rep(rgh),
+        roughness: rgh ? 1 : opt.rough, metalness: opt.metal, color: 0xffffff
+      });
+    }
     var pack = getTexturePack(kind, opt.hex);
     var map = pack.map.clone(); map.needsUpdate = true;
     map.wrapS = map.wrapT = THREE.RepeatWrapping; map.repeat.set(repX, repY);
@@ -414,12 +515,12 @@
 
   /* ---------- custom 3D models (Becken / Armatur / Griffleiste) ---------- */
   var MODEL_SLOTS = [
-    {id:'sink_round', group:'sink', variant:'round', label:'Becken – Rund', target:{w:500,h:150,d:400}, origin:'bottom'},
-    {id:'sink_oval', group:'sink', variant:'oval', label:'Becken – Oval', target:{w:560,h:150,d:400}, origin:'bottom'},
-    {id:'sink_rect', group:'sink', variant:'rect', label:'Becken – Rechteckig', target:{w:560,h:150,d:380}, origin:'bottom'},
-    {id:'faucet_round', group:'faucet', variant:'round', label:'Armatur – Rund', target:{w:110,h:220,d:150}, origin:'bottom'},
-    {id:'faucet_square', group:'faucet', variant:'square', label:'Armatur – Eckig', target:{w:110,h:220,d:150}, origin:'bottom'},
-    {id:'faucet_cylindrical', group:'faucet', variant:'cylindrical', label:'Armatur – Zylindrisch', target:{w:110,h:220,d:150}, origin:'bottom'},
+    {id:'sink_round', group:'sink', variant:'round', label:'Becken – Kartell Rund', target:{w:500,h:150,d:400}, origin:'bottom'},
+    {id:'sink_oval', group:'sink', variant:'oval', label:'Becken – Eclipse Oval', target:{w:560,h:150,d:400}, origin:'bottom'},
+    {id:'sink_rect', group:'sink', variant:'rect', label:'Becken – Eckig', target:{w:560,h:150,d:380}, origin:'bottom'},
+    {id:'faucet_round', group:'faucet', variant:'round', label:'Armatur – Klassisch', target:{w:200,h:260,d:220}, origin:'bottom'},
+    {id:'faucet_square', group:'faucet', variant:'square', label:'Armatur – Eckig', target:{w:200,h:260,d:220}, origin:'bottom'},
+    {id:'faucet_cylindrical', group:'faucet', variant:'cylindrical', label:'Armatur – Modern', target:{w:200,h:260,d:220}, origin:'bottom'},
     {id:'handle', group:'handle', variant:null, label:'Griffleiste', target:{h:16,d:22}, origin:'center'}
   ];
   var customModels = {
@@ -433,12 +534,13 @@
 
   var gltfLoader = (typeof THREE.GLTFLoader === 'function') ? new THREE.GLTFLoader() : null;
 
-  function fitModelTemplate(scene3d, target, originMode){
+  // anchor (optional): Punkt in x/z, der zum Ursprung wird (statt Box-Mitte).
+  function fitModelTemplate(scene3d, target, originMode, anchor){
     var box3 = new THREE.Box3().setFromObject(scene3d);
     var size = new THREE.Vector3(); box3.getSize(size);
     var center = new THREE.Vector3(); box3.getCenter(center);
-    scene3d.position.x -= center.x;
-    scene3d.position.z -= center.z;
+    scene3d.position.x -= anchor ? anchor.x : center.x;
+    scene3d.position.z -= anchor ? anchor.z : center.z;
     scene3d.position.y -= (originMode==='center') ? center.y : box3.min.y;
     scene3d.traverse(function(o){ if(o.isMesh){ o.castShadow=true; o.receiveShadow=true; } });
     var wrapper = new THREE.Group();
@@ -453,6 +555,195 @@
     }
     wrapper.userData.fit = fit;
     return wrapper;
+  }
+
+  // Mittelpunkt (x/z) aller Vertices unterhalb maxY – bei einer Armatur die
+  // Grundplatte, von der aus der Auslauf nach vorne zeigt.
+  function footCentroid(root, maxY){
+    var v = new THREE.Vector3(), sx = 0, sz = 0, n = 0;
+    root.traverse(function(o){
+      if(!o.isMesh) return;
+      var pos = o.geometry.attributes.position;
+      var step = Math.max(1, Math.floor(pos.count/20000));
+      for(var i=0;i<pos.count;i+=step){
+        v.fromBufferAttribute(pos, i).applyMatrix4(o.matrixWorld);
+        if(v.y <= maxY){ sx += v.x; sz += v.z; n++; }
+      }
+    });
+    return n ? new THREE.Vector3(sx/n, 0, sz/n) : null;
+  }
+
+  // Dreht ein Modell passend zum Möbel: Becken mit der langen Seite entlang x,
+  // Armatur mit dem Auslauf nach vorne (+z). Gibt bei Armaturen den Fusspunkt
+  // zurück, damit sie an der Grundplatte statt an der Box-Mitte sitzt.
+  function orientModel(pivot, group, extraRotYDeg){
+    pivot.updateMatrixWorld(true);
+    var box3 = new THREE.Box3().setFromObject(pivot);
+    var size = new THREE.Vector3(); box3.getSize(size);
+    var center = new THREE.Vector3(); box3.getCenter(center);
+    var angle = 0, foot = null;
+    if(group==='faucet'){
+      foot = footCentroid(pivot, box3.min.y + size.y*0.08);
+      var dx = foot ? center.x - foot.x : 0, dz = foot ? center.z - foot.z : 0;
+      if(Math.sqrt(dx*dx + dz*dz) > 0.05*Math.max(size.x, size.z)){
+        angle = -Math.atan2(dx, dz);
+      } else if(size.x > size.z){
+        angle = Math.PI/2;
+      }
+    } else if(size.z > size.x){
+      angle = Math.PI/2;
+    }
+    angle = Math.round(angle/(Math.PI/2))*(Math.PI/2) + (extraRotYDeg||0)*Math.PI/180;
+    pivot.rotation.y = angle;
+    pivot.updateMatrixWorld(true);
+    if(foot) foot.applyAxisAngle(new THREE.Vector3(0,1,0), angle);
+    return foot;
+  }
+
+  function prepareModel(scene3d, slot, target, extraRotYDeg){
+    if(slot.group==='handle') return fitModelTemplate(scene3d, slot.target, slot.origin);
+    var pivot = new THREE.Group();
+    pivot.add(scene3d);
+    var foot = orientModel(pivot, slot.group, extraRotYDeg);
+    return fitModelTemplate(pivot, target || slot.target, slot.origin, foot);
+  }
+
+  /* ---------- mitgelieferte Modelle aus den Projektordnern ---------- */
+  // Wert je Variante: Eintrag wie bei customModels, 'loading' oder 'failed'.
+  // Geladen wird erst, wenn eine Variante gebraucht wird; bis dahin (oder wenn
+  // die Datei fehlt) zeigt die Szene die einfache Ersatzgeometrie.
+  var builtinModels = { sink:{}, faucet:{} };
+
+  function resolveModel(group, key){
+    if(customModels[group][key]) return customModels[group][key];
+    var b = builtinModels[group][key];
+    if(b && typeof b === 'object') return b;
+    if(!b) loadBuiltinModel(group, key);
+    return null;
+  }
+
+  function loadBuiltinModel(group, key){
+    var opt = findOpt(group==='sink' ? SINK_SHAPES : FAUCET_TYPES, key);
+    var slot = findSlot(group+'_'+key);
+    if(!opt.model || !gltfLoader || !slot){ builtinModels[group][key] = 'failed'; return; }
+    builtinModels[group][key] = 'loading';
+    renderModelSlots();
+    gltfLoader.load(opt.model, function(gltf){
+      var wrapper = prepareModel(gltf.scene, slot, opt.size, opt.rotY);
+      var entry = { name:opt.model, object:wrapper, scale:1 };
+      builtinModels[group][key] = entry;
+      renderModelSlots();
+      rebuildScene();
+      attachVariants(entry, gltf);
+    }, undefined, function(err){
+      builtinModels[group][key] = 'failed';
+      renderModelSlots();
+      console.warn('3D-Modell konnte nicht geladen werden: '+opt.model, err);
+    });
+  }
+
+  // Liest die Material-Ausführungen einer glTF-Datei (KHR_materials_variants)
+  // und hängt sie an den Modell-Eintrag: names = Liste der Ausführungen,
+  // byGeometry = Geometrie -> [Material je Ausführung].
+  function attachVariants(entry, gltf){
+    var parser = gltf.parser, json = parser.json;
+    var ext = json.extensions && json.extensions.KHR_materials_variants;
+    if(!ext || !ext.variants || !ext.variants.length) return Promise.resolve();
+    var byGeometry = new Map();
+    var jobs = [];
+    (json.meshes||[]).forEach(function(meshDef, mi){
+      meshDef.primitives.forEach(function(prim, pi){
+        var pe = prim.extensions && prim.extensions.KHR_materials_variants;
+        if(!pe || !pe.mappings) return;
+        jobs.push(parser.getDependency('mesh', mi).then(function(obj){
+          var target = obj.isMesh ? obj : obj.children[pi];
+          if(!target || !target.geometry) return;
+          return Promise.all(pe.mappings.map(function(mp){
+            return parser.getDependency('material', mp.material).then(function(mat){
+              var list = byGeometry.get(target.geometry) || [];
+              mp.variants.forEach(function(v){ list[v] = mat; });
+              byGeometry.set(target.geometry, list);
+            });
+          }));
+        }));
+      });
+    });
+    return Promise.all(jobs).then(function(){
+      entry.variants = {
+        names: ext.variants.map(function(v, i){ return v.name || ('Ausführung '+(i+1)); }),
+        byGeometry: byGeometry
+      };
+      rebuildScene();
+    }).catch(function(err){ console.warn('Ausführungen konnten nicht gelesen werden', err); });
+  }
+
+  function applyVariant(inst, entry, slotId){
+    var idx = state.variants[slotId];
+    if(!entry.variants || idx === undefined || idx < 0) return;
+    inst.traverse(function(o){
+      if(!o.isMesh) return;
+      var list = entry.variants.byGeometry.get(o.geometry);
+      if(list && list[idx]) o.material = list[idx];
+    });
+  }
+
+  // Auswahl der Ausführungen für alle aktuell sichtbaren Modelle, die welche haben.
+  function renderVariantPicker(){
+    var group = document.getElementById('variantGroup');
+    var list = document.getElementById('variantList');
+    if(!group || !list) return;
+    var used = [];
+    if(state.type==='vanity'){
+      var shapes = {};
+      state.modules.forEach(function(m){ if(m.sink) shapes[m.shape] = true; });
+      Object.keys(shapes).forEach(function(k){ used.push(findSlot('sink_'+k)); });
+      if(used.length) used.push(findSlot('faucet_'+state.faucetType));
+    }
+    var rows = used.map(function(slot){
+      var entry = customModels[slot.group][slot.variant] || builtinModels[slot.group][slot.variant];
+      if(!entry || typeof entry !== 'object' || !entry.variants) return '';
+      var cur = state.variants[slot.id];
+      if(cur === undefined) cur = -1;
+      var opts = '<option value="-1">Standard</option>' + entry.variants.names.map(function(n, i){
+        return '<option value="'+i+'"'+(cur===i?' selected':'')+'>'+n+'</option>';
+      }).join('');
+      return '<label class="variant-row"><span>'+slot.label+'</span>'+
+        '<select class="sink-shape" data-slot="'+slot.id+'">'+opts+'</select></label>';
+    }).join('');
+    list.innerHTML = rows;
+    group.hidden = !rows;
+  }
+
+  (function wireVariantPicker(){
+    var list = document.getElementById('variantList');
+    if(!list) return;
+    list.addEventListener('change', function(e){
+      var slotId = e.target.getAttribute('data-slot');
+      if(!slotId) return;
+      state.variants[slotId] = parseInt(e.target.value, 10);
+      rebuildScene();
+    });
+  })();
+
+  // Ersetzt die Materialien eines Armatur-Modells durch die gewählte Oberfläche.
+  function applyFaucetFinish(obj, finish){
+    obj.traverse(function(o){
+      if(!o.isMesh) return;
+      var src = Array.isArray(o.material) ? o.material[0] : o.material;
+      o.material = new THREE.MeshStandardMaterial({
+        color: finish.hex, metalness: finish.metal, roughness: finish.rough,
+        normalMap: (src && src.normalMap) || null
+      });
+    });
+  }
+
+  function renderModelCredits(){
+    var el = document.getElementById('modelCredits');
+    if(!el) return;
+    var items = SINK_SHAPES.concat(FAUCET_TYPES).filter(function(o){ return o.credit; });
+    el.innerHTML = '3D-Modelle (CC BY 4.0, Sketchfab): ' + items.map(function(o){
+      return '<a href="'+o.credit.url+'" target="_blank" rel="noopener">'+o.credit.title+'</a> von '+o.credit.author;
+    }).join(' · ');
   }
 
   function instantiateModel(entry, opts){
@@ -496,8 +787,12 @@
     if(!wrap) return;
     wrap.innerHTML = MODEL_SLOTS.map(function(slot){
       var entry = getSlotValue(slot);
+      var builtin = slot.group==='handle' ? null : builtinModels[slot.group][slot.variant];
       var status = entry
         ? ('Eigenes Modell: '+entry.name+(entry.persisted===false ? ' (nur diese Sitzung)' : ''))
+        : (builtin && typeof builtin === 'object') ? 'Mitgeliefert: '+builtin.name
+        : builtin==='loading' ? 'Mitgeliefertes Modell lädt …'
+        : builtin==='failed' ? 'Modell nicht gefunden – Standard-Geometrie'
         : 'Standard-Geometrie';
       return '<div class="model-row">'+
         '<div class="model-row-head"><span class="model-label">'+slot.label+'</span>'+
@@ -527,11 +822,12 @@
       var isGlb = /\.glb$/i.test(file.name);
       var parseInput = isGlb ? buf : new TextDecoder('utf-8').decode(buf);
       var gltf = await parseGltfData(parseInput);
-      var wrapper = fitModelTemplate(gltf.scene, slot.target, slot.origin);
+      var wrapper = prepareModel(gltf.scene, slot);
       var entry = { name:file.name, object:wrapper, scale:1, persisted:false };
       setSlotValue(slot, entry);
       renderModelSlots();
       rebuildScene();
+      attachVariants(entry, gltf);
 
       if(buf.byteLength <= 3*1024*1024){
         try{
@@ -565,10 +861,12 @@
         var buf = base64ToArrayBuffer(parsed.data);
         var parseInput = parsed.isGlb ? buf : new TextDecoder('utf-8').decode(buf);
         parseGltfData(parseInput).then(function(gltf){
-          var wrapper = fitModelTemplate(gltf.scene, slot.target, slot.origin);
-          setSlotValue(slot, {name:parsed.name, object:wrapper, scale:1, persisted:true});
+          var wrapper = prepareModel(gltf.scene, slot);
+          var entry = {name:parsed.name, object:wrapper, scale:1, persisted:true};
+          setSlotValue(slot, entry);
           renderModelSlots();
           rebuildScene();
+          attachVariants(entry, gltf);
         }).catch(function(){
           try{ localStorage.removeItem('vanova3d_'+slot.id); }catch(e){}
         });
@@ -647,11 +945,19 @@
     }
   }
 
+  var FAUCET_Z = -(MOD_DEPTH/2 - 40);
+
   function buildSink(group, x, topY, width, shape){
-    var customSink = customModels.sink[shape];
-    if(customSink){
-      var inst = instantiateModel(customSink, {});
-      inst.position.set(x, topY, 10);
+    var sinkModel = resolveModel('sink', shape);
+    if(sinkModel){
+      var inst = instantiateModel(sinkModel, {});
+      applyVariant(inst, sinkModel, 'sink_'+shape);
+      var natural = sinkModel.object.userData.fit.natural;
+      var w = natural.x * inst.scale.x;
+      if(w > width - 60) inst.scale.multiplyScalar((width - 60) / w);
+      // Hinterkante mit Abstand vor die Armatur setzen
+      var d = natural.z * inst.scale.z;
+      inst.position.set(x, topY, Math.max(10, FAUCET_Z + 45 + d/2));
       group.add(inst);
     } else {
       var opt = findOpt(SINK_SHAPES, shape);
@@ -677,13 +983,15 @@
   function buildFaucetAt(group, x, topY, finish){
     var wrap = new THREE.Group();
     wrap.position.y = topY;
-    var customFaucet = customModels.faucet[state.faucetType];
-    if(customFaucet){
-      var inst = instantiateModel(customFaucet, {});
-      inst.position.set(x, 0, -(MOD_DEPTH/2 - 40));
+    var faucetModel = resolveModel('faucet', state.faucetType);
+    if(faucetModel){
+      var inst = instantiateModel(faucetModel, {});
+      applyVariant(inst, faucetModel, 'faucet_'+state.faucetType);
+      if(finish.key !== 'original') applyFaucetFinish(inst, finish);
+      inst.position.set(x, 0, FAUCET_Z);
       wrap.add(inst);
     } else {
-      buildFaucet(wrap, x, -(MOD_DEPTH/2 - 40), finish);
+      buildFaucet(wrap, x, FAUCET_Z, finish);
     }
     group.add(wrap);
   }
@@ -709,7 +1017,7 @@
       var m = state.modules[i];
       var cx = x + m.width/2;
 
-      var corpusMat = texMat(frontKind, frontOpt, Math.max(1,Math.round(m.width/280)), Math.max(1,Math.round(CORPUS_H/280)));
+      var corpusMat = texMat(frontKind, frontOpt, Math.max(1,Math.round(m.width/280)), Math.max(1,Math.round(CORPUS_H/280)), {w:m.width, h:CORPUS_H});
       var corpus = box(m.width-4, CORPUS_H, MOD_DEPTH, corpusMat);
       corpus.position.set(cx, baseY + CORPUS_H/2, 0);
       furnitureGroup.add(corpus);
@@ -719,7 +1027,7 @@
         handleInst.position.set(cx, baseY + CORPUS_H - 34, MOD_DEPTH/2 + 8);
         furnitureGroup.add(handleInst);
       } else {
-        var handleMat = texMat('brushed', handleOpt, Math.max(1,Math.round((m.width-60)/140)), 1);
+        var handleMat = texMat('brushed', handleOpt, Math.max(1,Math.round((m.width-60)/140)), 1, {w:m.width-60, h:12});
         var handle = box(m.width-60, 12, 22, handleMat);
         handle.position.set(cx, baseY + CORPUS_H - 34, MOD_DEPTH/2 + 8);
         furnitureGroup.add(handle);
@@ -731,7 +1039,7 @@
       x += m.width + GAP;
     }
 
-    var topMat = texMat('stone-fine', topOpt, Math.max(1,Math.round((totalW+30)/380)), Math.max(1,Math.round((MOD_DEPTH+30)/380)));
+    var topMat = texMat('stone-fine', topOpt, Math.max(1,Math.round((totalW+30)/380)), Math.max(1,Math.round((MOD_DEPTH+30)/380)), {w:totalW+30, h:MOD_DEPTH+30});
     var top = box(totalW+30, TOP_VANITY_T, MOD_DEPTH+30, topMat);
     top.position.set(0, baseY + CORPUS_H + TOP_VANITY_T/2, 0);
     furnitureGroup.add(top);
@@ -777,7 +1085,7 @@
       var m = state.modules[i];
       var cx = x + m.width/2;
 
-      var corpusMat = texMat(frontKind, frontOpt, Math.max(1,Math.round(m.width/280)), Math.max(1,Math.round(CORPUS_H/280)));
+      var corpusMat = texMat(frontKind, frontOpt, Math.max(1,Math.round(m.width/280)), Math.max(1,Math.round(CORPUS_H/280)), {w:m.width, h:CORPUS_H});
       var corpus = box(m.width-4, CORPUS_H, MOD_DEPTH, corpusMat);
       corpus.position.set(cx, baseY + CORPUS_H/2, 0);
       furnitureGroup.add(corpus);
@@ -793,7 +1101,7 @@
         hR.position.set(cx + doorGap/2 + 6, baseY+CORPUS_H/2, MOD_DEPTH/2+6);
         furnitureGroup.add(hR);
       } else {
-        var handleMat = texMat('brushed', handleOpt, 1, Math.max(1,Math.round((CORPUS_H-90)/140)));
+        var handleMat = texMat('brushed', handleOpt, 1, Math.max(1,Math.round((CORPUS_H-90)/140)), {w:10, h:CORPUS_H-90});
         var handleL = box(10, CORPUS_H-90, 18, handleMat);
         handleL.position.set(cx - doorGap/2 - 6, baseY+CORPUS_H/2, MOD_DEPTH/2+6);
         furnitureGroup.add(handleL);
@@ -805,7 +1113,7 @@
       x += m.width + GAP;
     }
 
-    var topMat = texMat(frontKind, frontOpt, Math.max(1,Math.round((totalW+10)/280)), Math.max(1,Math.round((MOD_DEPTH+10)/280)));
+    var topMat = texMat(frontKind, frontOpt, Math.max(1,Math.round((totalW+10)/280)), Math.max(1,Math.round((MOD_DEPTH+10)/280)), {w:totalW+10, h:MOD_DEPTH+10});
     var top = box(totalW+10, TOP_SIDEBOARD_T, MOD_DEPTH+10, topMat);
     top.position.set(0, baseY + CORPUS_H + TOP_SIDEBOARD_T/2, 0);
     furnitureGroup.add(top);
@@ -833,6 +1141,8 @@
       if(c.geometry) c.geometry.dispose();
     }
     var info = state.type==='vanity' ? buildVanity() : buildSideboard();
+    updateWall();
+    renderVariantPicker();
 
     var box3 = new THREE.Box3().setFromObject(furnitureGroup);
     var size = new THREE.Vector3(); box3.getSize(size);
@@ -972,7 +1282,9 @@
     var el = document.getElementById(containerId);
     el.innerHTML = list.map(function(o){
       return '<button class="swatch'+(state[stateKey]===o.key?' active':'')+'" data-key="'+o.key+'" title="'+o.name+'">'+
-        '<span class="dot" style="background:#'+o.hex.toString(16).padStart(6,'0')+'"></span>'+
+        // Bild als Vorschau; fehlt die Datei, bleibt die Farbe sichtbar
+        '<span class="dot" style="background:#'+o.hex.toString(16).padStart(6,'0')+
+          (o.texture ? ' url(\''+o.texture+'\') center/cover' : '')+'"></span>'+
         '<span class="lbl">'+o.name+'</span></button>';
     }).join('');
     if(labelId){
@@ -991,6 +1303,7 @@
   renderSwatches('frontSwatches', FRONTS, 'front', 'frontLabel');
   renderSwatches('topSwatches', TOPS, 'top', 'topLabel');
   renderSwatches('handleSwatches', HANDLES, 'handle', 'handleLabel');
+  renderSwatches('wallSwatches', WALLS, 'wall', 'wallLabel');
   renderSwatches('faucetFinishSwatches', FAUCET_FINISHES, 'faucetFinish', null);
 
   (function renderFaucetTypes(){
@@ -1327,11 +1640,32 @@
     renderer.render(scene, camera);
   }
 
+  /* ---------- Umgebungs-Texturen (Wand, Spiegel) ---------- */
+  function updateWall(){
+    var opt = findOpt(WALLS, state.wall);
+    var mat = texMat('matte', opt, 6, 4, {w:6000, h:3400});
+    // im dunklen Design die Wand nur abdunkeln statt umfärben
+    mat.color.set(currentTheme()==='dark' ? 0x4a4a46 : 0xffffff);
+    if(wall.material !== wallMat) wall.material.dispose();
+    wall.material = mat;
+  }
+
+  function loadEnvironmentTextures(){
+    getImageTexture(MIRROR_SMUDGES, false, function(tex){
+      // dunkle Stellen = glatt, Schlieren = matter
+      mirrorGlass.material.roughnessMap = tex;
+      mirrorGlass.material.roughness = 0.35;
+      mirrorGlass.material.needsUpdate = true;
+    });
+  }
+
   /* ---------- init ---------- */
   applyTheme();
+  loadEnvironmentTextures();
   onResize();
   renderModuleList();
   renderModelSlots();
+  renderModelCredits();
   document.getElementById('frameGroup').style.display = 'none';
   rebuildScene({resetCamera:true});
   animate();

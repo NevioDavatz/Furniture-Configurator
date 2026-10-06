@@ -1,0 +1,11 @@
+Model Information:
+* title:	Eclipse sink - Rock Design
+* source:	https://sketchfab.com/3d-models/eclipse-sink-rock-design-2bb40b5652a8475790f2ad8820ab2d67
+* author:	rockdesign.eu (https://sketchfab.com/rockdesign.eu)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Eclipse sink - Rock Design" (https://sketchfab.com/3d-models/eclipse-sink-rock-design-2bb40b5652a8475790f2ad8820ab2d67) by rockdesign.eu (https://sketchfab.com/rockdesign.eu) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

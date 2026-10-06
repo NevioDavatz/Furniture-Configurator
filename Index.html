@@ -69,6 +69,16 @@
     <div class="swatches" id="faucetFinishSwatches"></div>
   </section>
 
+  <section class="group">
+    <h2>Wand <span class="hint" id="wallLabel"></span></h2>
+    <div class="swatches" id="wallSwatches"></div>
+  </section>
+
+  <section class="group" id="variantGroup" hidden>
+    <h2>Ausführung <span class="hint">Modell-Texturen</span></h2>
+    <div id="variantList"></div>
+  </section>
+
   <section class="group" id="mirrorGroup">
     <label class="check-row">
       <input type="checkbox" id="mirrorToggle" checked>
@@ -78,7 +88,7 @@
 
   <details class="group model-admin" id="modelAdmin">
     <summary>Eigene 3D-Modelle <span class="hint">Backend</span></summary>
-    <p class="model-admin-hint">Eigene GLB-/glTF-Dateien (eingebettet, unkomprimiert) für Becken, Armatur und Griffleiste hinterlegen – ersetzen dann dauerhaft die einfache Geometrie im Modell und im 3D-Export. Werden lokal in diesem Browser gespeichert.</p>
+    <p class="model-admin-hint">Eigene GLB-/glTF-Dateien (eingebettet, unkomprimiert) für Becken, Armatur und Griffleiste hinterlegen – ersetzen dann die mitgelieferten Modelle bzw. die einfache Geometrie im Modell und im 3D-Export. Werden lokal in diesem Browser gespeichert.</p>
     <div id="modelSlots"></div>
   </details>
 
@@ -105,6 +115,7 @@
     <button id="exportModel" class="btn-primary">3D-Modell herunterladen</button>
     <div class="export-status" id="exportStatus"></div>
     <button id="resetView">Ansicht zurücksetzen</button>
+    <p class="model-credits" id="modelCredits"></p>
   </div>
 </aside>
 

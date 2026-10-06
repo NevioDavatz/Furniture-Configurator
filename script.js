@@ -1606,19 +1606,19 @@
     btn.disabled = true;
     statusEl.textContent = 'Modell wird erstellt …';
     try{
-      if(!window.claude || !window.claude.use){ throw {code:'unavailable'}; }
-      var downloads = await window.claude.use('downloads');
-      if(!downloads){ throw {code:'unavailable'}; }
       var zipBlob = await buildExportZip();
-      statusEl.textContent = 'Download wird angeboten …';
-      var res = await downloads.save({filename: exportFilename(), data: zipBlob});
-      statusEl.textContent = res.status==='saved' ? 'Gespeichert.' : 'Übergeben.';
+      var url = URL.createObjectURL(zipBlob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = exportFilename();
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 10000);
+      statusEl.textContent = 'Download gestartet.';
     }catch(err){
-      var code = err && err.code;
-      if(code==='declined'){ statusEl.textContent = 'Download abgebrochen.'; }
-      else if(code==='rate_limited'){ statusEl.textContent = 'Bitte kurz warten und erneut versuchen.'; }
-      else if(code==='too_large'){ statusEl.textContent = 'Datei zu gross für diese Ansicht.'; }
-      else { statusEl.textContent = 'Download hier nicht verfügbar.'; }
+      console.error('Export fehlgeschlagen', err);
+      statusEl.textContent = 'Export fehlgeschlagen – Details in der Browser-Konsole.';
     } finally {
       btn.disabled = false;
       setTimeout(function(){ statusEl.textContent = ''; }, 5000);
